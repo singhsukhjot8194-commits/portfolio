@@ -89,19 +89,28 @@ var hamburger = document.getElementById("hamburger");
 var navLinks = document.getElementById("navLinks");
 
 if (hamburger && navLinks) {
-  hamburger.addEventListener("click", function () {
-    hamburger.classList.toggle("active");
-    navLinks.classList.toggle("open");
-    document.body.style.overflow = navLinks.classList.contains("open")
-      ? "hidden"
-      : "";
+  function closeMobileMenu() {
+    hamburger.classList.remove("active");
+    navLinks.classList.remove("open");
+    hamburger.setAttribute("aria-expanded", "false");
+    document.body.style.overflow = "";
+  }
+
+  function toggleMobileMenu() {
+    const isOpen = navLinks.classList.toggle("open");
+    hamburger.classList.toggle("active", isOpen);
+    hamburger.setAttribute("aria-expanded", String(isOpen));
+    document.body.style.overflow = isOpen ? "hidden" : "";
+  }
+
+  hamburger.addEventListener("click", function (event) {
+    event.stopPropagation();
+    toggleMobileMenu();
   });
 
   document.querySelectorAll(".nav-links a").forEach(function (a) {
     a.addEventListener("click", function () {
-      hamburger.classList.remove("active");
-      navLinks.classList.remove("open");
-      document.body.style.overflow = "";
+      closeMobileMenu();
     });
   });
 
@@ -111,17 +120,19 @@ if (hamburger && navLinks) {
       !navLinks.contains(e.target) &&
       !hamburger.contains(e.target)
     ) {
-      hamburger.classList.remove("active");
-      navLinks.classList.remove("open");
-      document.body.style.overflow = "";
+      closeMobileMenu();
     }
   });
 
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape" && navLinks.classList.contains("open")) {
-      hamburger.classList.remove("active");
-      navLinks.classList.remove("open");
-      document.body.style.overflow = "";
+      closeMobileMenu();
+    }
+  });
+
+  window.addEventListener("resize", function () {
+    if (window.innerWidth > 768) {
+      closeMobileMenu();
     }
   });
 }
